@@ -111,6 +111,8 @@ CMAC verification  failed
 | `EVP_MAC_update(ctx, data, dataLen)`          | `Csm_MacGenerateUpdate(jobId, dataPtr, dataLen)`               | Streams input data in chunks for MAC calculation.                                        |
 | `EVP_MAC_final(ctx, outTag, &outLen, maxLen)` | `Csm_MacGenerateFinish(jobId, tagPtr, &tagLen)`                | Finalizes MAC and outputs the authenticator/tag.                                         |
 
+Note: This document demonstrates conceptual mapping of cryptographic primitives
+to AUTOSAR Crypto Stack services. Exact API names and behavior may vary by vendor.
 
 Feel free to modify the code as needed and ensure that your software integrity checks are robust for your deployment needs. Stay secure!
 
