@@ -44,21 +44,81 @@ Main C source file implementing CMAC generation, verification, and FV handling.
 
 ```
 
-TX ECU (Sender)                                     RX ECU (Receiver)
+Application Payload (PDU)
+        |
+        v
++---------------------------+
+| Generate Freshness Value  |
+| (Monotonic Counter)       |
++---------------------------+
+        |
+        v
++---------------------------+
+| Construct Secured Data    |
+| [FV || Payload]           |
++---------------------------+
+        |
+        v
++---------------------------+
+| CMAC Generation           |
+| - EVP_MAC_init            |
+| - EVP_MAC_update(FV||PDU) |
+| - EVP_MAC_final           |
++---------------------------+
+        |
+        v
++--------------------------------+
+| Transmitted Frame              |
+| [FV || Payload || CMAC Tag]    |
++--------------------------------+
+        |
+        v
+        >>>>>>>>> Sent over Bus / Network >>>>>>>>>
+        
+Received Frame
+[FV || Payload || CMAC Tag]
+        |
+        v
++---------------------------+
+| Extract Fields            |
+| - Freshness Value (FV)    |
+| - Payload                 |
+| - Received CMAC Tag       |
++---------------------------+
+        |
+        v
++---------------------------+
+| Verify Freshness Value    |
+| - FV > Last Stored FV ?   |
++---------------------------+
+        |
+        |---- NO ---->  ❌ Reject (Replay Detected)
+        |
+        v
++---------------------------+
+| CMAC Recalculation        |
+| - EVP_MAC_init            |
+| - EVP_MAC_update(FV||PDU) |
+| - EVP_MAC_final           |
++---------------------------+
+        |
+        v
++---------------------------+
+| Compare CMAC Tags         |
+| Calculated == Received ?  |
++---------------------------+
+        |
+        |---- NO ----> ❌ Reject (Integrity Failure)
+        |
+        v
++---------------------------+
+| Accept Payload            |
+| Update Stored FV          |
++---------------------------+
+        |
+        v
+      ✅ PASS
 
----
-
-[Payload / PDU]                                      [Payload / PDU + MAC]
-|                                                       |
-| 1) MAC Init (EVP_MAC_init)                            | 4) MAC Init (EVP_MAC_init)
-| 2) MAC Update (EVP_MAC_update over payload)           | 5) MAC Update (EVP_MAC_update over payload)
-| 3) MAC Final (EVP_MAC_final → MAC Tag)                | 6) MAC Final (EVP_MAC_final → Calculated Tag)
-|                                                       |
-[Payload + MAC Tag]  --------------------->  [Extract Received Tag]
-|
-| 7) Compare Calculated Tag vs Received Tag
-v
-PASS / FAIL
 
 ````
 
