@@ -117,11 +117,11 @@ int main() {
     {
      if(!verifyFV(&FV))
      {
-        printf("CMAC verification ✅ successful\n");
+        printf("CMAC verification  successful\n");
      }
     else
     {
-        printf("CMAC verification ❌ failed\n");
+        printf("CMAC verification  failed\n");
      }
     }
     return 0;
