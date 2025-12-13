@@ -1,227 +1,134 @@
-```md
-# Secure CMAC with Freshness Value
 
-This repository contains a **C implementation of a secure Message Authentication Code (CMAC)** generation and verification mechanism using the **OpenSSL 3.0 EVP_MAC API**.
+==============================================================
+                      Secure CMAC with Freshness Value
+==============================================================
 
-The CMAC generation incorporates a **Freshness Value (FV)** to protect against **replay attacks**, aligning conceptually with **AUTOSAR SecOC** principles.
+This repository contains a C implementation of a secure message 
+authentication code (CMAC) generation and verification process 
+using the OpenSSL 3.0 EVP_MAC API. The CMAC generation includes 
+a Freshness Value (FV) to enhance security by preventing replay 
+attacks.
 
----
+==============================================================
+                         Features
+==============================================================
 
-## ✨ Features
+→ **CMAC Generation**: Uses AES-128-CBC cipher to generate the CMAC.
 
-- **CMAC Generation**
-  - Uses **AES-128-CBC** for CMAC computation.
+→ **CMAC Verification**: Verifies the integrity of the received message.
 
-- **CMAC Verification**
-  - Verifies message integrity by recalculating and comparing CMAC tags.
+→ **Freshness Value (FV)**: Implements a monotonic counter (FV) to prevent replay attacks.
 
-- **Freshness Value (FV)**
-  - Implements a **monotonic counter** to prevent replay attacks.
+→ **OpenSSL 3.0**: The implementation uses the OpenSSL 3.0 EVP_MAC API for cryptographic operations.
 
-- **OpenSSL 3.0**
-  - Uses the modern **EVP_MAC API** (provider-based crypto).
+==============================================================
+                        Files Overview
+==============================================================
 
----
+→ **SecOc.c**: The main C file that includes functions for CMAC 
+  generation, verification, and Freshness Value (FV) management.
 
-## 📁 Files Overview
+    → `GenerateCMAC`: Generates the CMAC using AES-128-CBC and Freshness Value.
 
-### `SecOc.c`
-Main C source file implementing CMAC generation, verification, and FV handling.
+    → `VerifyCMAC`: Verifies the integrity of the CMAC against the received message.
 
-**Key Functions:**
-- `GenerateCMAC`  
-  Generates CMAC using AES-128-CBC and prepended Freshness Value.
-- `VerifyCMAC`  
-  Recalculates and verifies CMAC against received data.
-- `generateFV`  
-  Increments the monotonic Freshness Value.
-- `verifyFV`  
-  Validates that the received FV is newer and untampered.
+    → `generateFV`: Increments the Freshness Value (monotonic counter).
 
----
-
-## 🔁 Secure Communication Flow
-
-```
-
-Application Payload (PDU)
-        |
-        v
-+---------------------------+
-| Generate Freshness Value  |
-| (Monotonic Counter)       |
-+---------------------------+
-        |
-        v
-+---------------------------+
-| Construct Secured Data    |
-| [FV || Payload]           |
-+---------------------------+
-        |
-        v
-+---------------------------+
-| CMAC Generation           |
-| - EVP_MAC_init            |
-| - EVP_MAC_update(FV||PDU) |
-| - EVP_MAC_final           |
-+---------------------------+
-        |
-        v
-+--------------------------------+
-| Transmitted Frame              |
-| [FV || Payload || CMAC Tag]    |
-+--------------------------------+
-        |
-        v
-        >>>>>>>>> Sent over Bus / Network >>>>>>>>>
-        
-Received Frame
-[FV || Payload || CMAC Tag]
-        |
-        v
-+---------------------------+
-| Extract Fields            |
-| - Freshness Value (FV)    |
-| - Payload                 |
-| - Received CMAC Tag       |
-+---------------------------+
-        |
-        v
-+---------------------------+
-| Verify Freshness Value    |
-| - FV > Last Stored FV ?   |
-+---------------------------+
-        |
-        |---- NO ---->  ❌ Reject (Replay Detected)
-        |
-        v
-+---------------------------+
-| CMAC Recalculation        |
-| - EVP_MAC_init            |
-| - EVP_MAC_update(FV||PDU) |
-| - EVP_MAC_final           |
-+---------------------------+
-        |
-        v
-+---------------------------+
-| Compare CMAC Tags         |
-| Calculated == Received ?  |
-+---------------------------+
-        |
-        |---- NO ----> ❌ Reject (Integrity Failure)
-        |
-        v
-+---------------------------+
-| Accept Payload            |
-| Update Stored FV          |
-+---------------------------+
-        |
-        v
-      ✅ PASS
+    → `verifyFV`: Verifies if the received Freshness Value is valid and hasn't been tampered with.
+==============================================================
+                        Flow diagram
+==============================================================
+TX ECU (Sender)                                     RX ECU (Receiver)
+----------------                                     ----------------
+[Payload / PDU]                                      [Payload / PDU + MAC]
+     |                                                       |
+     | 1) MAC Init (EVP_MAC_init)                            | 4) MAC Init (EVP_MAC_init)
+     | 2) MAC Update (EVP_MAC_update over payload)           | 5) MAC Update (EVP_MAC_update over payload)
+     | 3) MAC Final (EVP_MAC_final => MAC Tag)               | 6) MAC Final (EVP_MAC_final => Calculated Tag)
+     |                                                       |
+[Payload + MAC Tag]  --------------------->  [Extract Received Tag]
+                                             |
+                                             | 7) Compare Calculated Tag vs Received Tag
+                                             v
+                                         PASS / FAIL
 
 
-````
+==============================================================
+                         Dependencies
+==============================================================
 
----
+→ **OpenSSL 3.0**: This code relies on the OpenSSL 3.0 libraries for cryptographic operations. 
+  Ensure that OpenSSL is properly installed and linked during the build process.
 
-## 📦 Dependencies
+==============================================================
+                    Compilation Instructions
+==============================================================
 
-- **OpenSSL 3.0**
-  - Required for EVP_MAC cryptographic operations.
-
-Ensure OpenSSL is installed and properly linked during compilation.
-
----
-
-## 🛠️ Compilation Instructions
-
-Install OpenSSL development libraries:
+To compile the code, ensure you have the OpenSSL development libraries installed on your system. 
+You can install OpenSSL using the following command:
 
 ```bash
 sudo apt-get install libssl-dev
-````
+```
 
-Compile the program:
+To compile the code, run:
 
 ```bash
 gcc SecOc.c -o SecOc -lssl -lcrypto
 ```
 
----
+==============================================================
+                           Usage
+==============================================================
 
-## ▶️ Usage
-
-### Run the Program
+1. **Run the Program**: After compiling, run the executable:
 
 ```bash
 ./SecOc
 ```
 
-### Example Output (Valid Payload)
+2. **Program Output**: The program will generate and verify a CMAC for a predefined payload (`AUTOSAR_SECURE_PAYLOAD`) and display the Freshness Value (FV) along with the CMAC.
+
+Example output:
 
 ```bash
 Generated CMAC: 97A8A4F5B51F8D3BFC463F22D4A95BBF
 Freshness value is  1
-CMAC verification successful
+CMAC verification  successful
 ```
 
-### Example Output (Tampered Payload)
+3. **Tampered Payload Verification**: If the payload is tampered, the verification will fail.
+
+Example output for a tampered payload:
 
 ```bash
 Generated CMAC: 97A8A4F5B51F8D3BFC463F22D4A95BBF
 Freshness value is  1
-CMAC verification failed
+CMAC verification  failed
 ```
 
----
+==============================================================
+                         Functions
+==============================================================
 
-## 🔧 Function Details
+→ **`GenerateCMAC`**: Takes a key, data, and generates the CMAC. It prepends the Freshness Value to the data before calculating the MAC.
 
-### `GenerateCMAC`
+→ **`VerifyCMAC`**: Verifies the CMAC by recalculating the expected MAC and comparing it with the received MAC.
 
-* Prepends Freshness Value to payload.
-* Computes CMAC using AES-128-CBC.
+→ **`generateFV`**: Increments the Freshness Value (FV) to ensure it is unique and not reused.
 
-### `VerifyCMAC`
+→ **`verifyFV`**: Verifies that the received Freshness Value is greater than the previously stored FV, ensuring no replay attacks.
 
-* Recomputes expected CMAC.
-* Compares against received tag.
+==============================================================
+                Comparision with Autosar API's
+==============================================================
+| In this Repo (OpenSSL)                        | AUTOSAR (Typical Crypto Stack)                                 | What it does                                                                             |
+| --------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `EVP_MAC_init(ctx, key, keyLen, params)`      | `Csm_MacGenerateStart(jobId, …)` *(via CryIf → Crypto Driver)* | Initializes the MAC operation (selects configured algorithm/key, resets internal state). |
+| `EVP_MAC_update(ctx, data, dataLen)`          | `Csm_MacGenerateUpdate(jobId, dataPtr, dataLen)`               | Streams input data in chunks for MAC calculation.                                        |
+| `EVP_MAC_final(ctx, outTag, &outLen, maxLen)` | `Csm_MacGenerateFinish(jobId, tagPtr, &tagLen)`                | Finalizes MAC and outputs the authenticator/tag.                                         |
 
-### `generateFV`
+Note: This document demonstrates conceptual mapping of cryptographic primitives
+to AUTOSAR Crypto Stack services. Exact API names and behavior may vary by vendor.
 
-* Increments and returns monotonic FV.
-
-### `verifyFV`
-
-* Ensures received FV is greater than last stored FV.
-* Prevents replay attacks.
-
----
-
-## 🔐 Comparison with AUTOSAR Crypto APIs
-
-| OpenSSL (This Repo)                           | AUTOSAR Crypto Stack (Typical)                   | Description                                    |
-| --------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
-| `EVP_MAC_init(ctx, key, keyLen, params)`      | `Csm_MacGenerateStart(jobId, …)`                 | Initializes MAC operation and internal context |
-| `EVP_MAC_update(ctx, data, dataLen)`          | `Csm_MacGenerateUpdate(jobId, dataPtr, dataLen)` | Streams input data for MAC computation         |
-| `EVP_MAC_final(ctx, outTag, &outLen, maxLen)` | `Csm_MacGenerateFinish(jobId, tagPtr, &tagLen)`  | Finalizes MAC and outputs authenticator/tag    |
-
-> **Note:**
-> This table demonstrates a **conceptual mapping** between OpenSSL cryptographic primitives and AUTOSAR Crypto Stack services.
-> Exact API names, configuration, and behavior may vary by vendor.
-
----
-
-## 📌 Notes
-
-* Designed as a **learning and demonstration implementation**
-* Aligns conceptually with **AUTOSAR SecOC**
-* Suitable for **simulation, PoC, and security experimentation**
-
-Feel free to modify and extend the implementation based on your deployment needs.
-
-
----
-
-
-
+Feel free to modify the code as needed and ensure that your software integrity checks are robust for your deployment needs. Stay secure!
