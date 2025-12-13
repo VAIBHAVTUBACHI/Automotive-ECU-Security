@@ -1,49 +1,97 @@
 # Automotive Cybersecurity
 
-This repository focuses on enhancing cybersecurity within automotive systems, particularly in Electronic Control Units (ECUs). The main goal is to secure the communication and software integrity in these systems to prevent unauthorized access and tampering.
+This repository focuses on enhancing cybersecurity within automotive systems, particularly in
+Electronic Control Units (ECUs). The main goal is to protect **in-vehicle communication** and
+**software integrity** to prevent unauthorized access, manipulation, and tampering.
+
+The repository combines **threat analysis** with **practical security demonstrations** to show
+how cybersecurity concepts translate into real ECU-level implementations.
+
+---
 
 ## Features
 
-* **Secure Flashing**: Verifies the integrity of firmware before flashing to ensure that only authenticated software is installed on the ECU.
-* **Secure Onboard Communication (SecOC)**: Implements secure communication protocols to protect data exchanged between ECUs in automotive systems.
-* **Cryptographic Hashing**: Utilizes SHA256 hashing to validate software authenticity and secure communication channels.
-* **Tamper Detection**: Identifies and prevents unauthorized changes to software and data during transmission.
+- **Threat Analysis and Risk Assessment (TARA)**  
+  Performs a system-level cybersecurity risk analysis aligned with ISO/SAE 21434 concepts,
+  identifying assets, threat scenarios, risks, and security goals.
 
-## Files
+- **Secure Flashing**  
+  Verifies firmware integrity before flashing to ensure that only authentic software is installed
+  on the ECU.
 
-* `Secure_flash.c`: Implements secure flashing with SHA256 verification to ensure the integrity of firmware before flashing.
-* `SecOc.c`: Implements Secure Onboard Communication (SecOC) to ensure secure communication between ECUs.
-* `SecOc_README.txt`: Provides documentation and details for the implementation of SecOC.
-* `Secure_Flash_README.txt`: Provides documentation for the secure flashing implementation.
+- **Secure Onboard Communication (SecOC)**  
+  Demonstrates message authentication and integrity protection for data exchanged between ECUs.
+
+- **Cryptographic Hashing**  
+  Uses SHA-256 hashing for firmware integrity verification and secure communication concepts.
+
+- **Tamper Detection**  
+  Detects and blocks unauthorized software modification or message manipulation.
+
+---
+
+## Repository Structure
+
+- `TARA/`
+  - Contains Threat Analysis and Risk Assessment documentation and example analysis.
+- `Secure_flash.c`  
+  Implements secure flashing with SHA-256 verification.
+- `SecOc.c`  
+  Implements Secure Onboard Communication (SecOC) concepts.
+- `Secure_Flash_README.md`  
+  Documentation for the secure flashing implementation.
+- `SecOc_README.txt`  
+  Documentation for the SecOC implementation.
+
+---
 
 ## Requirements
 
-* **OpenSSL**: Required for cryptographic operations, specifically for hashing and securing communications.
-* **C Compiler**: A C compiler that supports OpenSSL is needed to compile and run the code.
+- **OpenSSL**  
+  Required for cryptographic operations such as hashing and message authentication.
+- **C Compiler**  
+  A C compiler with OpenSSL support is required to build and run the examples.
+
+---
 
 ## Usage
 
-1. **Install OpenSSL**:
+### Install OpenSSL (Windows)
 
-   * **Windows**:
+- Download the OpenSSL installer from the official website:
+  https://slproweb.com/products/Win32OpenSSL.html
+- Install OpenSSL and ensure it is added to the system PATH.
+- Verify installation:
+  ```bash
+  openssl version
+````
 
-     * Download the OpenSSL installer from the [official OpenSSL website](https://slproweb.com/products/Win32OpenSSL.html).
-     * Install OpenSSL using the installer, and make sure to add OpenSSL to your system's PATH during the installation process.
-     * After installation, verify that OpenSSL is working by running `openssl version` in your command prompt.
+### Compile
 
-2. **Compile the code**:
+```bash
+gcc -o secure_flash Secure_flash.c -lssl -lcrypto
+```
 
-   ```bash
-   gcc -o secure_flash Secure_flash.c -lssl -lcrypto
-   ```
+### Run
 
-3. **Run the program**:
+```bash
+./secure_flash
+```
 
-   ```bash
-   ./secure_flash
-   ```
 ---
 
-Feel free to modify the code as needed to suit your specific automotive cybersecurity needs. Stay secure!
+## Notes
+
+* This repository demonstrates **automotive cybersecurity concepts**, not a full OEM production
+  system.
+* AUTOSAR API names and implementations may vary depending on the vendor.
+* The focus is on understanding **security reasoning and architecture**, rather than compliance
+  documentation.
 
 ---
+
+Feel free to explore and modify the code for learning or experimentation purposes.
+
+```
+
+
