@@ -67,5 +67,7 @@ HASH MISMATCHED XXXXXX SORRY PLEASE TRY AGAIN LATER!!
 | `EVP_DigestFinal_ex(ctx, hash, &hashLen)` | `Csm_HashFinish(jobId, hashPtr, &hashLen)`                                                  | Finalizes hash computation and outputs digest.                   |
 | Manual hash comparison in application     | Application logic after `Csm_HashFinish` **or** signature verify via `Csm_SignatureVerify*` | Decision step: accept/reject firmware image before flashing.     |
 
+Note: This document demonstrates conceptual mapping of cryptographic primitives
+to AUTOSAR Crypto Stack services. Exact API names and behavior may vary by vendor.
 
 Feel free to modify the code as needed and ensure that your software integrity checks are robust for your deployment needs. Stay secure!
