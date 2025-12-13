@@ -77,7 +77,7 @@ Example output:
 ```bash
 Generated CMAC: 97A8A4F5B51F8D3BFC463F22D4A95BBF
 Freshness value is  1
-CMAC verification ✅ successful
+CMAC verification  successful
 ```
 
 3. **Tampered Payload Verification**: If the payload is tampered, the verification will fail.
@@ -87,7 +87,7 @@ Example output for a tampered payload:
 ```bash
 Generated CMAC: 97A8A4F5B51F8D3BFC463F22D4A95BBF
 Freshness value is  1
-CMAC verification ❌ failed
+CMAC verification  failed
 ```
 
 ==============================================================
