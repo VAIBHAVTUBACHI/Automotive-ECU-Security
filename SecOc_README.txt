@@ -35,6 +35,23 @@ attacks.
     → `generateFV`: Increments the Freshness Value (monotonic counter).
 
     → `verifyFV`: Verifies if the received Freshness Value is valid and hasn't been tampered with.
+==============================================================
+                        Flow diagram
+==============================================================
+TX ECU (Sender)                                     RX ECU (Receiver)
+----------------                                     ----------------
+[Payload / PDU]                                      [Payload / PDU + MAC]
+     |                                                       |
+     | 1) MAC Init (EVP_MAC_init)                            | 4) MAC Init (EVP_MAC_init)
+     | 2) MAC Update (EVP_MAC_update over payload)           | 5) MAC Update (EVP_MAC_update over payload)
+     | 3) MAC Final (EVP_MAC_final => MAC Tag)               | 6) MAC Final (EVP_MAC_final => Calculated Tag)
+     |                                                       |
+[Payload + MAC Tag]  --------------------->  [Extract Received Tag]
+                                             |
+                                             | 7) Compare Calculated Tag vs Received Tag
+                                             v
+                                         PASS / FAIL
+
 
 ==============================================================
                          Dependencies
