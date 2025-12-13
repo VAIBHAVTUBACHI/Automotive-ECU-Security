@@ -1,8 +1,3 @@
-Below is the **clean, GitHub-ready `README.md`** version of your content.
-I’ve preserved the **technical rigor**, improved **Markdown structure**, and made it render nicely on GitHub without changing meaning.
-
----
-
 ```md
 # Secure CMAC with Freshness Value
 
