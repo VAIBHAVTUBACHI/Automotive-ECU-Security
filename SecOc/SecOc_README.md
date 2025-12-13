@@ -160,9 +160,6 @@ CMAC verification failed
 
 Feel free to modify and extend the implementation based on your deployment needs.
 
-**Stay secure. 🔐**
-
-```
 
 ---
 
