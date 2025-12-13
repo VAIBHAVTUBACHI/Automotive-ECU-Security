@@ -34,7 +34,7 @@ Automotive-ECU-Security/
 ├── README.md
 │
 ├── SecOC/
-│   ├── secoc_demo.c
+│   ├── secoc.c
 │   └── SecOc_README.txt
 │
 ├── Secure_Flash/
