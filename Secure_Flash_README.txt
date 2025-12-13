@@ -1,73 +1,127 @@
+---
 
-# Secure Flashing with SHA256 Verification
+Secure Flashing with SHA-256 Verification
 
-This repository contains code for performing secure flashing of software onto a device by verifying its integrity using SHA256 hashing. It ensures that only the software with the correct hash is flashed onto the device, helping protect against tampered or corrupted firmware.
+This repository demonstrates a secure flashing mechanism that verifies firmware integrity using SHA-256 hashing before allowing a flash operation.
+The goal is to ensure that only authentic and untampered firmware images are accepted, preventing corrupted or malicious software from being flashed onto the device.
 
-## Features
-- **SHA256 Hashing**: Uses OpenSSL's `EVP` API to calculate SHA256 hashes of the software to verify its integrity.
-- **Software Integrity Check**: Compares the hash of the incoming software against a stored hash value. If the hashes match, the software can be safely flashed; otherwise, it will reject the operation.
-- **Prevention of Tampering**: Provides a simple mechanism to detect tampered firmware by comparing hashes before proceeding with any flash operation.
+---
 
-## How It Works
-1. The software is first hashed using the SHA256 algorithm.
-2. A comparison is made between the calculated hash of the software and the stored hash.
-3. If the hashes match, the software is deemed secure, and the flash operation is allowed to proceed.
-4. If there is a hash mismatch (indicating potential tampering), the flash process is aborted, and a warning is issued.
+KEY FEATURES
 
-## Code Walkthrough
+* SHA-256 Integrity Verification
+  Uses OpenSSL EVP digest APIs to compute cryptographic hashes of firmware images.
 
-- **Hash Verification**: The `verify_sha256` function is used to compute the hash of the provided software (either the original or tampered version). This is done using OpenSSL's `EVP_Digest` functions.
-  
-- **Stored Hash**: The `stored_hash` represents a previously computed valid hash for the legitimate software. This hash is compared with the hash of the incoming firmware to ensure it hasn't been tampered with.
+* Pre-Flash Validation
+  Compares the calculated firmware hash against a trusted reference hash before flashing.
 
-## Example Output
-After running the code, the following output will be displayed, depending on whether the hashes match:
-```
-Calculated hash is: 
+* Tamper Detection
+  Automatically blocks the flash operation if the firmware image has been modified or corrupted.
+
+---
+
+SECURE FLASH FLOW
+
+Firmware / Image File
+|
+| 1) Digest Init   (EVP_DigestInit_ex)
+| 2) Read chunk -> Digest Update (EVP_DigestUpdate) [repeated]
+| 3) Digest Final  (EVP_DigestFinal_ex -> SHA-256 hash)
+v
+Computed Hash  -------------------->  Compare with Expected / Reference Hash
+|
+|-- MATCH     -> Allow Flash
+|-- MISMATCH  -> Block Flash
+
+---
+
+HOW IT WORKS
+
+1. The firmware image is read and hashed using the SHA-256 algorithm.
+2. The calculated hash is compared with a stored reference hash.
+3. If both hashes match, the firmware is considered authentic and flashing is allowed.
+4. If the hashes differ, the flashing process is aborted to prevent tampering.
+
+---
+
+CODE OVERVIEW
+
+* Hash Computation and Verification
+  The verify_sha256() function computes the SHA-256 hash using OpenSSL EVP_DigestInit,
+  EVP_DigestUpdate, and EVP_DigestFinal APIs.
+
+* Reference Hash
+  The stored_hash represents a known-good hash of a legitimate firmware image and is
+  used for comparison.
+
+---
+
+EXAMPLE OUTPUT
+
+Valid Firmware (Hash Match)
+
+Calculated hash is:
 A3 7F 2C D9 4B 1E 88 6A F0 3D B7 5C 9A 0E 14 C2
 6D E1 93 AF 78 05 39 CB 12 8F DA 47 60 BE 25 91
-Stored hash is: 
+
+Stored hash is:
 A3 7F 2C D9 4B 1E 88 6A F0 3D B7 5C 9A 0E 14 C2
 6D E1 93 AF 78 05 39 CB 12 8F DA 47 60 BE 25 91
 
-HASH MATCHED PROCEEDING TO FLASH THE SOFTWARE .....
-```
+HASH MATCHED - PROCEEDING TO FLASH THE SOFTWARE
 
-If the hashes do not match, the program will display:
-```
-HASH MISMATCHED XXXXXX SORRY PLEASE TRY AGAIN LATER!!
-```
+Tampered Firmware (Hash Mismatch)
 
-## Requirements
-- **OpenSSL**: This code uses the OpenSSL library, which needs to be installed to handle cryptographic operations.
-- **C Compiler**: A C compiler that supports OpenSSL is required to compile and run this code.
+HASH MISMATCH - FLASH OPERATION BLOCKED
 
-## Usage
+---
 
-2. **Install OpenSSL**:
-    For Windows, you can follow these steps:
-    - Download the OpenSSL installer from the [official OpenSSL website](https://slproweb.com/products/Win32OpenSSL.html).
-    - Install OpenSSL using the installer, and make sure to add OpenSSL to your system's PATH during the installation process.
-    - After installation, verify that OpenSSL is working by running `openssl version` in your command prompt.
+AUTOSAR CONCEPTUAL MAPPING
 
-3. **Compile the code**:
-    ```bash
-    gcc -o secure_flash secure_flash.c -lssl -lcrypto
-    ```
+This implementation demonstrates cryptographic primitives using OpenSSL.
+In production AUTOSAR Classic systems, similar functionality is typically
+provided via the AUTOSAR Crypto Stack (CSM / CryIf).
 
-4. **Run the program**:
-    ```bash
-    ./secure_flash
-    ```
-##comparison with AUTOSAR API's 
-| In this Repo (OpenSSL)                    | AUTOSAR (Typical Crypto Stack)                                                              | What it does                                                     |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `EVP_DigestInit_ex(ctx, SHA256, …)`       | `Csm_HashStart(jobId, …)` *(via CryIf → Crypto Driver)*                                     | Initializes hash calculation for firmware/image integrity check. |
-| `EVP_DigestUpdate(ctx, data, dataLen)`    | `Csm_HashUpdate(jobId, dataPtr, dataLen)`                                                   | Streams firmware/image data in chunks to compute hash.           |
-| `EVP_DigestFinal_ex(ctx, hash, &hashLen)` | `Csm_HashFinish(jobId, hashPtr, &hashLen)`                                                  | Finalizes hash computation and outputs digest.                   |
-| Manual hash comparison in application     | Application logic after `Csm_HashFinish` **or** signature verify via `Csm_SignatureVerify*` | Decision step: accept/reject firmware image before flashing.     |
+## OpenSSL API (This Repo)          AUTOSAR Crypto Stack (Typical)         Purpose
 
-Note: This document demonstrates conceptual mapping of cryptographic primitives
-to AUTOSAR Crypto Stack services. Exact API names and behavior may vary by vendor.
+EVP_DigestInit_ex()              Csm_HashStart(jobId)                  Initialize hash calculation
+EVP_DigestUpdate()               Csm_HashUpdate(jobId, data, length)   Stream firmware data
+EVP_DigestFinal_ex()             Csm_HashFinish(jobId, hash, length)   Finalize hash and output digest
+Application hash comparison      Application logic / Secure Boot       Allow or block flashing
 
-Feel free to modify the code as needed and ensure that your software integrity checks are robust for your deployment needs. Stay secure!
+Note: AUTOSAR API names and behavior may vary depending on the vendor implementation.
+
+---
+
+REQUIREMENTS
+
+* OpenSSL library
+* C compiler with OpenSSL support
+
+---
+
+BUILD AND RUN
+
+Install OpenSSL (Windows):
+
+* Download OpenSSL from the official website
+* Add OpenSSL to system PATH
+* Verify installation using:
+  openssl version
+
+Compile:
+gcc -o secure_flash secure_flash.c -lssl -lcrypto
+
+Run:
+./secure_flash
+
+---
+
+IMPORTANT NOTES
+
+* This project demonstrates firmware integrity verification only.
+* It does not implement a full OEM bootloader.
+* Production secure flashing typically integrates secure boot,
+  key storage or HSM, and digital signature verification.
+
+---
