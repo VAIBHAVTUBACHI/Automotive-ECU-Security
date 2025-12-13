@@ -112,7 +112,7 @@ Refer to the individual module README files for detailed build and usage instruc
 
 ## Notes
 
-* This repository is intended for **learning, demonstration, and interview discussion**
+* This repository is intended for **learning and demonstration purpose only**
 * No proprietary standards or OEM code are reproduced
 * Security decisions are driven by **risk analysis (TARA)** rather than implementation convenience
 
