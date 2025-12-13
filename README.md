@@ -1,97 +1,125 @@
-# Automotive Cybersecurity
 
-This repository focuses on enhancing cybersecurity within automotive systems, particularly in
-Electronic Control Units (ECUs). The main goal is to protect **in-vehicle communication** and
-**software integrity** to prevent unauthorized access, manipulation, and tampering.
 
-The repository combines **threat analysis** with **practical security demonstrations** to show
-how cybersecurity concepts translate into real ECU-level implementations.
+# Automotive ECU Security
+
+This repository demonstrates **automotive cybersecurity concepts** using practical examples
+focused on **Electronic Control Units (ECUs)**.
+
+The intent of this repository is to show **how security reasoning (TARA) translates into
+implementation-level concepts** such as Secure Onboard Communication (SecOC) and Secure Flashing,
+without relying on OEM-specific or proprietary code.
 
 ---
 
-## Features
+## What this repository covers
 
 - **Threat Analysis and Risk Assessment (TARA)**  
-  Performs a system-level cybersecurity risk analysis aligned with ISO/SAE 21434 concepts,
-  identifying assets, threat scenarios, risks, and security goals.
-
-- **Secure Flashing**  
-  Verifies firmware integrity before flashing to ensure that only authentic software is installed
-  on the ECU.
+  A system-level cybersecurity analysis aligned with ISO/SAE 21434 concepts, identifying assets,
+  threat scenarios, risks, and security goals.
 
 - **Secure Onboard Communication (SecOC)**  
-  Demonstrates message authentication and integrity protection for data exchanged between ECUs.
+  Demonstrates message authentication and integrity protection for ECU communication.
 
-- **Cryptographic Hashing**  
-  Uses SHA-256 hashing for firmware integrity verification and secure communication concepts.
-
-- **Tamper Detection**  
-  Detects and blocks unauthorized software modification or message manipulation.
+- **Secure Flash / Firmware Integrity**  
+  Demonstrates firmware integrity verification using cryptographic hashing before flashing.
 
 ---
 
 ## Repository Structure
 
-- `TARA/`
-  - Contains Threat Analysis and Risk Assessment documentation and example analysis.
-- `Secure_flash.c`  
-  Implements secure flashing with SHA-256 verification.
-- `SecOc.c`  
-  Implements Secure Onboard Communication (SecOC) concepts.
-- `Secure_Flash_README.md`  
-  Documentation for the secure flashing implementation.
-- `SecOc_README.txt`  
-  Documentation for the SecOC implementation.
+```
+
+Automotive-ECU-Security/
+│
+├── README.md
+│
+├── SecOC/
+│   ├── secoc_demo.c
+│   └── SecOc_README.txt
+│
+├── Secure_Flash/
+│   ├── secure_flash.c
+│   └── Secure_Flash_README.txt
+│
+├── TARA/
+│   ├── TARA_Overview.md
+│   └── TARA_Example.xlsx
+│
+└── LICENSE
+
+````
+
+---
+
+## Module Overview
+
+### TARA (Threat Analysis and Risk Assessment)
+The `TARA/` folder contains:
+- A concise **TARA overview** describing assets, threat scenarios, risk evaluation, and security goals
+- An **example TARA Excel sheet** used as the basis for the analysis
+
+The TARA is used to **justify why specific security mechanisms are needed**, rather than adding
+security features arbitrarily.
+
+---
+
+### Secure Onboard Communication (SecOC)
+The `SecOC/` folder demonstrates:
+- Message authentication and integrity protection concepts
+- MAC generation and verification using cryptographic primitives
+- Conceptual mapping to **AUTOSAR Crypto Stack services (CSM / CryIf)**
+
+This module focuses on **protecting in-vehicle communication against spoofing and manipulation**.
+
+---
+
+### Secure Flash / Firmware Integrity
+The `Secure_Flash/` folder demonstrates:
+- Firmware integrity verification using **SHA-256 hashing**
+- Blocking of unauthorized or tampered firmware before flashing
+- Conceptual mapping to **AUTOSAR hash services**
+
+This module focuses on **preventing unauthorized software updates** on ECUs.
+
+---
+
+## Scope and Intent
+
+- Implementations use **OpenSSL** to demonstrate cryptographic primitives
+- AUTOSAR API names and behavior are **vendor-dependent**
+- The repository focuses on **conceptual understanding and security reasoning**
+- This is **not an OEM production implementation**
 
 ---
 
 ## Requirements
 
-- **OpenSSL**  
-  Required for cryptographic operations such as hashing and message authentication.
-- **C Compiler**  
-  A C compiler with OpenSSL support is required to build and run the examples.
+- **OpenSSL** library
+- **C compiler** with OpenSSL support
 
 ---
 
-## Usage
+## Build and Run Example
 
-### Install OpenSSL (Windows)
-
-- Download the OpenSSL installer from the official website:
-  https://slproweb.com/products/Win32OpenSSL.html
-- Install OpenSSL and ensure it is added to the system PATH.
-- Verify installation:
-  ```bash
-  openssl version
+```bash
+gcc -o secure_flash Secure_Flash/secure_flash.c -lssl -lcrypto
+./secure_flash
 ````
 
-### Compile
-
-```bash
-gcc -o secure_flash Secure_flash.c -lssl -lcrypto
-```
-
-### Run
-
-```bash
-./secure_flash
-```
+Refer to the individual module README files for detailed build and usage instructions.
 
 ---
 
 ## Notes
 
-* This repository demonstrates **automotive cybersecurity concepts**, not a full OEM production
-  system.
-* AUTOSAR API names and implementations may vary depending on the vendor.
-* The focus is on understanding **security reasoning and architecture**, rather than compliance
-  documentation.
+* This repository is intended for **learning, demonstration, and interview discussion**
+* No proprietary standards or OEM code are reproduced
+* Security decisions are driven by **risk analysis (TARA)** rather than implementation convenience
 
 ---
 
-Feel free to explore and modify the code for learning or experimentation purposes.
+## License
 
+This project is licensed under the terms specified in the `LICENSE` file.
 ```
-
-
+---
