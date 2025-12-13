@@ -102,6 +102,15 @@ CMAC verification  failed
 
 → **`verifyFV`**: Verifies that the received Freshness Value is greater than the previously stored FV, ensuring no replay attacks.
 
+==============================================================
+                Comparision with Autosar API's
+==============================================================
+| In this Repo (OpenSSL)                        | AUTOSAR (Typical Crypto Stack)                                 | What it does                                                                             |
+| --------------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `EVP_MAC_init(ctx, key, keyLen, params)`      | `Csm_MacGenerateStart(jobId, …)` *(via CryIf → Crypto Driver)* | Initializes the MAC operation (selects configured algorithm/key, resets internal state). |
+| `EVP_MAC_update(ctx, data, dataLen)`          | `Csm_MacGenerateUpdate(jobId, dataPtr, dataLen)`               | Streams input data in chunks for MAC calculation.                                        |
+| `EVP_MAC_final(ctx, outTag, &outLen, maxLen)` | `Csm_MacGenerateFinish(jobId, tagPtr, &tagLen)`                | Finalizes MAC and outputs the authenticator/tag.                                         |
+
 
 Feel free to modify the code as needed and ensure that your software integrity checks are robust for your deployment needs. Stay secure!
 
