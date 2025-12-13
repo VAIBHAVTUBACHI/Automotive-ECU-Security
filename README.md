@@ -42,7 +42,7 @@ Automotive-ECU-Security/
 │   └── Secure_Flash_README.txt
 │
 ├── TARA/
-│   ├── TARA_Overview.md
+│   ├── TARA_README.md
 │   └── TARA_Example.xlsx
 │
 └── LICENSE
