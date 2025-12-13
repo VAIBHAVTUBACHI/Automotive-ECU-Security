@@ -59,6 +59,13 @@ HASH MISMATCHED XXXXXX SORRY PLEASE TRY AGAIN LATER!!
     ```bash
     ./secure_flash
     ```
+##comparison with AUTOSAR API's 
+| In this Repo (OpenSSL)                    | AUTOSAR (Typical Crypto Stack)                                                              | What it does                                                     |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `EVP_DigestInit_ex(ctx, SHA256, …)`       | `Csm_HashStart(jobId, …)` *(via CryIf → Crypto Driver)*                                     | Initializes hash calculation for firmware/image integrity check. |
+| `EVP_DigestUpdate(ctx, data, dataLen)`    | `Csm_HashUpdate(jobId, dataPtr, dataLen)`                                                   | Streams firmware/image data in chunks to compute hash.           |
+| `EVP_DigestFinal_ex(ctx, hash, &hashLen)` | `Csm_HashFinish(jobId, hashPtr, &hashLen)`                                                  | Finalizes hash computation and outputs digest.                   |
+| Manual hash comparison in application     | Application logic after `Csm_HashFinish` **or** signature verify via `Csm_SignatureVerify*` | Decision step: accept/reject firmware image before flashing.     |
 
 
 Feel free to modify the code as needed and ensure that your software integrity checks are robust for your deployment needs. Stay secure!
